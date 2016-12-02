@@ -40,8 +40,7 @@ export default class Mapping extends Item {
 		}
 
 		else if ( typeof template === 'string' ) {
-			const parsed = parseJSON( template );
-			viewmodel.joinKey( this.name ).set( parsed ? parsed.value : template );
+			viewmodel.joinKey( this.name ).set( parseJSON( template ).value );
 		}
 
 		else if ( isArray( template ) ) {
@@ -94,22 +93,24 @@ function createMapping ( item ) {
 	}
 
 	else {
-		item.boundFragment = new Fragment({
+		const fragment = item.boundFragment = new Fragment({
 			owner: item,
 			template
 		}).bind();
 
 		item.model = viewmodel.joinKey( item.name );
-		item.model.set( item.boundFragment.valueOf() );
+
+		const updateValue = () => {
+			const value = fragment.valueOf();
+			item.model.set( parseJSON( value ).value );
+		};
+		updateValue();
 
 		// item is a *bit* of a hack
 		item.boundFragment.bubble = () => {
 			Fragment.prototype.bubble.call( item.boundFragment );
 			// defer this to avoid mucking around model deps if there happens to be an expression involved
-			runloop.scheduleTask(() => {
-				item.boundFragment.update();
-				item.model.set( item.boundFragment.valueOf() );
-			});
+			runloop.scheduleTask(updateValue);
 		};
 	}
 }

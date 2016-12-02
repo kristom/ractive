@@ -3,8 +3,6 @@ import runloop from '../global/runloop';
 import createItem from './items/createItem';
 import ReferenceResolver from './resolvers/ReferenceResolver';
 import { bind, destroyed, shuffled, toEscapedString, toString, unbind, unrender, update } from '../shared/methodCallers';
-import processItems from './helpers/processItems';
-import parseJSON from '../utils/parseJSON';
 import { createDocumentFragment } from '../utils/dom';
 import { findMap } from '../utils/array';
 
@@ -31,7 +29,6 @@ export default class Fragment {
 		this.resolvers = [];
 
 		this.dirty = false;
-		this.dirtyValue = true; // used for attribute values
 
 		this.template = options.template || [];
 		this.createItems();
@@ -51,8 +48,6 @@ export default class Fragment {
 	}
 
 	bubble () {
-		this.dirtyValue = true;
-
 		if ( !this.dirty ) {
 			this.dirty = true;
 
@@ -272,18 +267,6 @@ export default class Fragment {
 			return this.items[0].valueOf();
 		}
 
-		if ( this.dirtyValue ) {
-			const values = {};
-			const source = processItems( this.items, values, this.ractive._guid );
-			const parsed = parseJSON( source, values );
-
-			this.value = parsed ?
-				parsed.value :
-				this.toString();
-
-			this.dirtyValue = false;
-		}
-
-		return this.value;
+		return this.toString();
 	}
 }

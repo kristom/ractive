@@ -614,7 +614,7 @@ export default function() {
 
 		const ractive = new Ractive({
 			el: fixture,
-			template: '<Widget foo="{bar:10}" answer="42 " string="99 problems" dynamic="{yes:{{but}}}"/>',
+			template: '<Widget foo="{bar:10}" answer="42 " string="99 problems" dynamic="{yes:\'{{but}}\'}"/>',
 			data: { but: 'no' },
 			components: { Widget }
 		});

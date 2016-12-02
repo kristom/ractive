@@ -4,9 +4,6 @@ import readKey from '../parse/converters/expressions/shared/readKey';
 
 // simple JSON parser, without the restrictions of JSON parse
 // (i.e. having to double-quote keys).
-//
-// If passed a hash of values as the second argument, ${placeholders}
-// will be replaced with those values
 
 const specials = {
 	true: true,
@@ -17,13 +14,10 @@ const specials = {
 
 const specialsPattern = new RegExp( '^(?:' + Object.keys( specials ).join( '|' ) + ')' );
 const numberPattern = /^(?:[+-]?)(?:(?:(?:0|[1-9]\d*)?\.\d+)|(?:(?:0|[1-9]\d*)\.)|(?:0|[1-9]\d*))(?:[eE][+-]?\d+)?/;
-const placeholderPattern = /\$\{([^\}]+)\}/g;
-const placeholderAtStartPattern = /^\$\{([^\}]+)\}/;
 const onlyWhitespace = /^\s*$/;
 
 const JsonParser = Parser.extend({
-	init ( str, options ) {
-		this.values = options.values;
+	init () {
 		this.allowWhitespace();
 	},
 
@@ -36,16 +30,6 @@ const JsonParser = Parser.extend({
 	},
 
 	converters: [
-		function getPlaceholder ( parser ) {
-			if ( !parser.values ) return null;
-
-			const placeholder = parser.matchPattern( placeholderAtStartPattern );
-
-			if ( placeholder && ( parser.values.hasOwnProperty( placeholder ) ) ) {
-				return { v: parser.values[ placeholder ] };
-			}
-		},
-
 		function getSpecial ( parser ) {
 			const special = parser.matchPattern( specialsPattern );
 			if ( special ) return { v: specials[ special ] };
@@ -54,19 +38,6 @@ const JsonParser = Parser.extend({
 		function getNumber ( parser ) {
 			const number = parser.matchPattern( numberPattern );
 			if ( number ) return { v: +number };
-		},
-
-		function getString ( parser ) {
-			const stringLiteral = readStringLiteral( parser );
-			const values = parser.values;
-
-			if ( stringLiteral && values ) {
-				return {
-					v: stringLiteral.v.replace( placeholderPattern, ( match, $1 ) => ( $1 in values ? values[ $1 ] : $1 ) )
-				};
-			}
-
-			return stringLiteral;
 		},
 
 		function getObject ( parser ) {
@@ -127,7 +98,9 @@ const JsonParser = Parser.extend({
 			}
 
 			return null;
-		}
+		},
+
+		readStringLiteral,
 	]
 });
 
@@ -154,7 +127,8 @@ function getKeyValuePair ( parser ) {
 	return pair;
 }
 
-export default function ( str, values ) {
-	const parser = new JsonParser( str, { values });
-	return parser.result;
+export default function ( value ) {
+	if ( typeof value !== 'string' ) return { value };
+	const parser = new JsonParser( value );
+	return parser.result || { value };
 }
