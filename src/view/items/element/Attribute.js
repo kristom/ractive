@@ -9,6 +9,7 @@ import { isArray } from '../../../utils/is';
 import { safeAttributeString } from '../../../utils/dom';
 import camelizeHyphenated from '../../../utils/camelizeHyphenated.js';
 import { booleanAttributes } from '../../../utils/html';
+import noop from '../../../utils/noop';
 
 function lookupNamespace ( node, prefix ) {
 	const qualified = `xmlns:${prefix}`;
@@ -71,10 +72,6 @@ export default class Attribute extends Item {
 			this.element.bubble();
 			this.dirty = true;
 		}
-	}
-
-	destroyed () {
-		this.updateDelegate( true );
 	}
 
 	getString () {
@@ -184,3 +181,5 @@ export default class Attribute extends Item {
 		}
 	}
 }
+
+Attribute.prototype.destroyed = noop;
