@@ -11,20 +11,20 @@ var tests = [
 					var r = window.ractive = new Ractive({
 						el: 'body',
 						template:
-`<table>
+`<table on-click="@this.doSomething()">
 	<tr><th>name</th><th>index</th><th>remove</th></tr>
 	{{#if show}}
-	{{#rows:i}}
+	{{#each rows}}
 	<tr class="{{#if ~/selected === .id}}selected{{/if}}">
 		<td>{{.id}}</td>
 		<td>{{.name}}</td>
-		<td>{{i}} - {{@index}}</td>
-		<td><button on-click="remove:{{i}}">remove</button></td>
+		<td>{{@index}}</td>
+		<td><button>remove</button></td>
 	</tr>
-	{{/rows}}
+	{{/each}}
 	{{/if}}
 </table>`,
-						data: { rows: [], show: true }
+						data: { rows: [], show: true },
 					});
 					var id = 0;
 					var random = window.random = function random(max) {

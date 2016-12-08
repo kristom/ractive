@@ -19,6 +19,7 @@ export default class Fragment {
 		this.isRoot = !options.owner.parentFragment;
 		this.parent = this.isRoot ? null : this.owner.parentFragment;
 		this.ractive = options.ractive || ( this.isRoot ? options.owner : this.parent.ractive );
+		this.delegate = options.delegate || ( this.parent && this.parent.delegate );
 
 		this.componentParent = ( this.isRoot && this.ractive.component ) ? this.ractive.component.parentFragment : null;
 

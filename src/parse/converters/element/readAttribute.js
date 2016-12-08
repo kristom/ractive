@@ -1,4 +1,4 @@
-import { ATTRIBUTE, DECORATOR, BINDING_FLAG, TRANSITION, EVENT } from '../../../config/types';
+import { ATTRIBUTE, DECORATOR, BINDING_FLAG, TRANSITION, ELEMENT, EVENT } from '../../../config/types';
 import getLowestIndex from '../utils/getLowestIndex';
 import readMustache from '../readMustache';
 import { decodeCharacterReferences } from '../../../utils/html';
@@ -225,9 +225,18 @@ export function readAttributeOrDirective ( parser ) {
 		attribute.v = match[2] === 'in-out' ? 't0' : match[2] === 'in' ? 't1' : 't2';
 	}
 
+		// target for delegated events
+	else if ( attribute.n === 'delegate-target' ) {
+		const el = parser.currentItem();
+		if ( el.t !== ELEMENT ) {
+			parser.error( 'delegate-target may only appear directly in a tag' );
+		}
+		el.g = 1;
+		return { exclude: true };
+	}
+
 		// on-click etc
 	else if ( match = eventPattern.exec( attribute.n ) ) {
-
 		attribute.n = splitEvent( match[1] );
 		attribute.t = EVENT;
 

@@ -21,6 +21,7 @@ const Parser = function ( str, options ) {
 	this.str = str;
 	this.options = options || {};
 	this.pos = 0;
+	this.stack = [];
 
 	this.lines = this.str.split( '\n' );
 	this.lineEnds = this.lines.map( line => {
@@ -61,6 +62,10 @@ Parser.prototype = {
 		}
 
 		return null;
+	},
+
+	currentItem () {
+		return this.stack[ this.stack.length - 1 ];
 	},
 
 	getContextMessage ( pos, message ) {

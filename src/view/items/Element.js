@@ -75,12 +75,18 @@ export default class Element extends ContainerItem {
 
 		this.attributes.sort( sortAttributes );
 
+		if ( this.template.g ) {
+			this.delegated = {};
+			this.delegate = this;
+		}
+
 		// create children
 		if ( options.template.f && !options.deferContent ) {
 			this.fragment = new Fragment({
 				template: options.template.f,
 				owner: this,
-				cssIds: null
+				cssIds: null,
+				delegate: this.delegated ? this : this.parentFragment.delegate
 			});
 		}
 

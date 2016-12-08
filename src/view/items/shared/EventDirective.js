@@ -30,12 +30,8 @@ export default class EventDirective {
 				this.events.push( new RactiveEvent( this.element, n ) );
 			});
 		} else {
-			this.template.n.forEach( n => {
-				const fn = findInViewHierarchy( 'events', this.ractive, n );
-				// we need to pass in "this" in order to get
-				// access to node when it is created.
-				this.events.push( fn ? new CustomEvent( fn, this.element ) : new DOMEvent( n, this.element ) );
-			});
+			this.delegate = this.element.delegate;
+			this.template.n.forEach( n => this.events.push( getEvent( this, this.element, n ) ) );
 		}
 
 		// method calls
@@ -143,8 +139,7 @@ export default class EventDirective {
 	handleChange () {}
 
 	render () {
-		// render events after everything else, so they fire after bindings
-		runloop.scheduleTask( () => this.events.forEach( e => e.listen( this ), true ) );
+		listen( this );
 	}
 
 	toString() { return ''; }
@@ -154,8 +149,53 @@ export default class EventDirective {
 	}
 
 	unrender () {
-		this.events.forEach( e => e.unlisten() );
+		unlisten ( this );
 	}
 }
 
 EventDirective.prototype.update = noop;
+
+function getEvent ( item, element, name, delegate ) {
+	const fn = findInViewHierarchy( 'events', item.ractive, name );
+	// we need to pass in "item" in order to get
+	// access to node when it is created.
+	return fn ? new CustomEvent( name, fn, element, delegate ) : new DOMEvent( name, element, delegate );
+}
+
+function listen ( item ) {
+	if ( item.delegate ) {
+		const target = item.delegate.delegated;
+		const template = item.action ? item.action : item.template.f.s;
+		item.template.n.forEach( n => {
+			const key = `${n}:${template}`;
+			if ( key in target ) {
+				target[key].count++;
+			} else {
+				const ev = getEvent( item, item.delegate, n, true );
+				ev.count = 1;
+				target[key] = ev;
+				runloop.scheduleTask( () => ev.listen() );
+			}
+		});
+	} else {
+		// render events after everything else, so they fire after bindings
+		runloop.scheduleTask( () => item.events.forEach( e => e.listen( item ), true ) );
+	}
+}
+
+function unlisten ( item ) {
+	if ( item.delegate ) {
+		const target = item.delegate.delegated;
+		const template = item.action ? item.action : item.template.f.s;
+		item.template.n.forEach( n => {
+			const key = `${n}:${template}`;
+			target[key].count--;
+			if ( !target[key].count ) {
+				target[key].unlisten();
+				delete target[key];
+			}
+		});
+	} else {
+		item.events.forEach( e => e.unlisten() );
+	}
+}

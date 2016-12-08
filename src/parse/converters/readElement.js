@@ -90,6 +90,7 @@ function readElement ( parser ) {
 	parser.allowWhitespace();
 
 	parser.inTag = true;
+	parser.stack.push( element );
 
 	// directives and attributes
 	while ( attribute = readMustache( parser ) ) {
@@ -219,6 +220,7 @@ function readElement ( parser ) {
 		}
 
 		parser.elementStack.pop();
+		parser.stack.pop();
 	}
 
 	parser.inside = null;

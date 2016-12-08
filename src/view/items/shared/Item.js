@@ -10,6 +10,8 @@ export default class Item {
 		this.index = options.index;
 		this.type = options.template.t;
 
+		this.delegate = options.delegate || options.parentFragment.delegate;
+
 		this.dirty = false;
 	}
 

@@ -71,7 +71,8 @@ export function createFragment ( ractive, options = {} ) {
 		return new Fragment({
 			owner: ractive,
 			template: ractive.template,
-			cssIds
+			cssIds,
+			delegate: ractive.container && ractive.container.delegate
 		});
 	}
 }

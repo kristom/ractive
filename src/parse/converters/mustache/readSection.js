@@ -84,6 +84,7 @@ export default function readSection ( parser, tag ) {
 	}
 
 	parser.sectionDepth += 1;
+	parser.stack.push( section );
 	children = section.f;
 
 	let pos;
@@ -96,6 +97,7 @@ export default function readSection ( parser, tag ) {
 			}
 
 			parser.sectionDepth -= 1;
+			parser.stack.pop();
 			closed = true;
 		}
 
