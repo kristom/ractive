@@ -574,34 +574,6 @@ export default function() {
 		t.deepEqual( inDom, { div: true, widget: true, p: true });
 	});
 
-	test( 'Data is synced as soon as an unresolved mapping is resolved', t => {
-		onWarn( () => {} ); // suppress
-
-		const ractive = new Ractive({
-			el: fixture,
-			template: '<Outer/>',
-			data: {
-				item: { x: 1 }
-			},
-			components: {
-				Outer: Ractive.extend({
-					template: '{{#with item}}<Inner foo="{{foo}}"/>{{/with}}'
-				}),
-				Inner: Ractive.extend({
-					template: '<p>foo: {{foo}}</p>'
-				})
-			}
-		});
-
-		t.htmlEqual( fixture.innerHTML, '<p>foo: </p>' );
-
-		ractive.toggle( 'item.foo' );
-		t.htmlEqual( fixture.innerHTML, '<p>foo: true</p>' );
-
-		ractive.toggle( 'item.foo' );
-		t.htmlEqual( fixture.innerHTML, '<p>foo: false</p>' );
-	});
-
 	// TODO: revist how we should handle this before finishing keypath-ftw
 	/*
 	test( 'Mapping to a computed property is an error', t => {
@@ -696,23 +668,6 @@ export default function() {
 		}
 
 		t.htmlEqual( fixture.innerHTML, '11233' );
-	});
-
-	test( 'Explicit mappings with uninitialised data', t => {
-		onWarn( () => {} ); // suppress
-
-		const ractive = new Ractive({
-			el: fixture,
-			template: '<Foo/>',
-			components: {
-				Foo: Ractive.extend({ template: '<Bar message="{{message}}"/>' }),
-				Bar: Ractive.extend({ template: '<Baz message="{{message}}"/>' }),
-				Baz: Ractive.extend({ template: '{{message}}' })
-			}
-		});
-
-		ractive.set( 'message', 'hello' );
-		t.htmlEqual( fixture.innerHTML, 'hello' );
 	});
 
 	test( 'Implicit mappings with uninitialised data', t => {
